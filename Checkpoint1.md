@@ -1,4 +1,4 @@
-# Phase 1 Deliverables
+# Checkpoint 1
 
 ## Project Summary and Plan
 
