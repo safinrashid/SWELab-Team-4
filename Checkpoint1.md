@@ -2,7 +2,7 @@
 
 ## Project Summary and Plan
 
-User Management:
+### User Management:
 
 a. Create a sign-in page where users can enter their user name, user ID, and password.
 
@@ -18,7 +18,8 @@ f. Create an API to access user and project information stored in the database.
 
 g. Implement AES-256 to encrypt user IDs and passwords.
 
-Resource Management:
+
+### Resource Management:
 
 a. Develop a display area that shows the capacity of HWSet1 and HWSet2.
 
@@ -28,7 +29,8 @@ c. Implement a database to store hardware resource information.
 
 d. Create a display area where users can specify how many units of HWSet1 and HWSet2 they want to check out and later check-in.
 
-System Requirements:
+
+### System Requirements:
 
 a. Ensure that the PoC is delivered within budget and schedule constraints, with periodic updates to stakeholders. Use an Agile development approach.
 
@@ -43,6 +45,8 @@ e. Create a database for maintaining user login credentials, project codes, proj
 f. Map each system requirement to one or more stakeholder needs to ensure that all stakeholder needs are met.
 
 ## User Stories
+
+We plan to use the built-in GitHub 'Project' tool in this repository to delegate work items effectively in one spot.
 
 ## Sketches
 
