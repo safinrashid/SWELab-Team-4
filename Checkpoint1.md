@@ -50,4 +50,17 @@ We plan to use the built-in GitHub 'Project' tool in this repository to delegate
 
 ## Sketches
 
+
 ## Tools
+
+Backend: Python
+
+Frontend: React
+
+Database: MongoDB
+
+Deployment: Google Cloud (student free credits)
+
+Environment Management: Docker
+
+Version control: GitHub
