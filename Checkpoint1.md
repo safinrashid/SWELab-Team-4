@@ -69,3 +69,5 @@ Database: MongoDB
 Deployment: Heruko Cloud 
 
 Environment Management: Docker
+
+Prepare -> Plan -> Design -> Validate -> Deploy
