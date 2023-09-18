@@ -47,7 +47,7 @@ e. Create a database for maintaining user login credentials, project codes, proj
 f. Map each system requirement to one or more stakeholder needs to ensure that all stakeholder needs are met.
 
 
-## User Stories
+## Project Management
 
 We plan to use the built-in GitHub 'Project' tool in this repository to organize work items and user stories effectively in one spot integrated with the repository and respective pull requests, initially populated with stores, technical debt, and research.
 
