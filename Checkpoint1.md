@@ -28,9 +28,11 @@ a. Develop a display area that shows the capacity of HWSet1 and HWSet2.
 
 b. Create a display area that shows the availability of HWSet1 and HWSet2.
 
-c. Implement a database to store hardware resource information.
+c. Implement a database to store hardware, data, and user information.
 
 d. Create a display area where users can specify how many units of HWSet1 and HWSet2 they want to check out and later check in.
+
+e. Associate cost over time with each hardware set and computational capabilities.
 
 ### System Requirements:
 
