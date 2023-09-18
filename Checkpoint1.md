@@ -58,9 +58,14 @@ We plan to use the built-in GitHub 'Project' tool in this repository to organize
 
 ## Tools
 
+Version control and project board: GitHub
+
 Backend: Python
+
 Frontend: React
+
 Database: MongoDB
-Deployment: Google Cloud (student free credits)
+
+Deployment: Heruko Cloud 
+
 Environment Management: Docker
-Version control: GitHub
