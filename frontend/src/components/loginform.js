@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from "react";
 import "./loginform.css"
-import "./login.py"
 
 const LoginForm = () => {
     // Create state variables for username, password, and password verification
