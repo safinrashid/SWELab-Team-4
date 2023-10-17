@@ -1,6 +1,6 @@
 # Checkpoint 1
 
-### Safin Rashid, Kashif Bandali, Josh Valinsky, Harsha Jandhyala
+### Safin Rashid, Kashif Bandali, Josh Valinsky, Harsha Jandhyala, Joaquin Escobar
 
 We want to create a Hardware-as-a-Service (HaaS) platform that allows users to use hardware resources and pay for the duration of their usage. This platform will offer account creation options to provide users with a personalized experience on the website, have the capability to initiate projects, and link them to various available hardware configurations. 
 
