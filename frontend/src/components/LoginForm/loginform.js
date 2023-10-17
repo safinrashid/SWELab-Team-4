@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import "./loginform.css"
+import { useNavigate } from "react-router-dom";
 
 const LoginForm = () => {
     // Create state variables for username, password, and password verification
@@ -7,6 +8,7 @@ const LoginForm = () => {
     const [password, setPassword] = useState("");
     const [passwordVerification, setPasswordVerification] = useState("");
     const [isSignUp, setIsSignUp] = useState(false); // State to track whether it's a sign-up or login
+    const navigate = useNavigate();
 
     // Function to handle username input change
     const handleUsernameChange = (event) => {
@@ -48,6 +50,8 @@ const LoginForm = () => {
                 console.log("Sign-up successful!");
                 console.log("Username:", username);
                 console.log("Password:", password);
+
+                navigate("/projects");
               } else {
                 console.error("Sign-up failed. User may already exist.");
               }
@@ -74,6 +78,8 @@ const LoginForm = () => {
               const responseData = await response.json();
               console.log(responseData.message);
               // You can also redirect the user to a dashboard or perform other actions upon successful login.
+            
+              navigate("/projects");
             } else {
               console.error("Login failed. Invalid credentials.");
             }

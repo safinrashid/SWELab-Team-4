@@ -1,0 +1,35 @@
+.hw-set {
+    display: flex;
+    flex-direction: column;
+    background-color: rgb(255, 238, 244);
+    padding: 20px;
+    border-radius: 5px;
+    border: 3px palevioletred solid;
+    width: 200px;
+    gap: 15px;
+    position: relative;
+
+    input {
+        width: 100%;
+        box-sizing: border-box;
+        border: 2px solid #444;
+    }
+
+    .hw-set-buttons {
+        display: flex;
+        flex-direction: row;
+        justify-content: center;
+        gap: 10px;
+
+        button {
+            background-color: palevioletred;
+            color: #fefefe;
+            border: none;
+            border-radius: 10px;
+            padding: 10px;
+            font-size: 16px;
+            cursor: pointer;
+            text-decoration: none;
+        }
+    }
+}
