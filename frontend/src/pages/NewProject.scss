@@ -1,0 +1,31 @@
+.projects-new-section {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    margin-bottom: 30px;
+    width: 100%;
+    max-width: 300px;
+    align-items: center;
+    position: relative;
+
+    input, .project-submit {
+        display: block;
+        background-color: #f0f0f0;
+        color: #858585;
+        font-size: 15px;
+        width: 100%;
+        border-radius: 5px;
+        box-sizing: border-box;
+        padding: 20px;
+    }
+
+    .project-submit {
+        background-color: palevioletred;
+        color: #fefefe;
+        width: 100%;
+        padding: 15px;
+        text-decoration: none;
+        border: none;
+        cursor: pointer;
+    }
+}
