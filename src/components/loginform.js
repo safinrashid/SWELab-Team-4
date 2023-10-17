@@ -1,5 +1,6 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import "./loginform.css"
+import "./login.py"
 
 const LoginForm = () => {
     // Create state variables for username, password, and password verification
@@ -29,23 +30,59 @@ const LoginForm = () => {
     }
 
     // Function to handle sign-up or login button click
-    const handleAuthClick = () => {
+    const handleAuthClick = async () => {
         if (isSignUp) {
-            // This is a sign-up, so you can compare the password and password verification
-            if (password === passwordVerification) {
+          if (password === passwordVerification) {
+            try {
+              const response = await fetch("http://localhost:5000/register", {
+                method: "POST",
+                headers: {
+                  "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                  username,
+                  password,
+                }),
+              });
+      
+              if (response.status === 201) {
                 console.log("Sign-up successful!");
                 console.log("Username:", username);
                 console.log("Password:", password);
-            } else {
-                console.error("Password and password verification do not match.");
+              } else {
+                console.error("Sign-up failed. User may already exist.");
+              }
+            } catch (error) {
+              console.error("Error:", error);
             }
+          } else {
+            console.error("Password and password verification do not match.");
+          }
         } else {
-            // This is a login
-            console.log("Login");
-            console.log("Username:", username);
-            console.log("Password:", password);
+          try {
+            const response = await fetch("http://localhost:5000/login", {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({
+                username,
+                password,
+              }),
+            });
+      
+            if (response.status === 200) {
+              const responseData = await response.json();
+              console.log(responseData.message);
+              // You can also redirect the user to a dashboard or perform other actions upon successful login.
+            } else {
+              console.error("Login failed. Invalid credentials.");
+            }
+          } catch (error) {
+            console.error("Error:", error);
+          }
         }
-    }
+      };
 
     return (
         <div className="cover">
