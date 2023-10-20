@@ -9,9 +9,12 @@ app = Flask(__name__)
 cors = CORS(app)
 
 # MongoDB connection setup
-client = MongoClient("mongodb+srv://valinsky:lF4rTL8YTLpYXhXF@cluster0.xfvk0tz.mongodb.net/")
-db = client["UserInfo"]
-users_collection = db["Users"]
+# client = MongoClient("mongodb+srv://valinsky:lF4rTL8YTLpYXhXF@cluster0.xfvk0tz.mongodb.net/")
+# db = client["UserInfo"]
+# users_collection = db["Users"]
+client = MongoClient("mongodb+srv://srashid:4j7MYn0GiqTjY3R1@project.mvmtzkd.mongodb.net/")
+db = client.Users
+users_collection = db.UserInfo
 
 # AES encryption setup
 # def encrypt(data, key):

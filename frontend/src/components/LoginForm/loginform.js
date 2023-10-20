@@ -8,6 +8,7 @@ const LoginForm = () => {
     const [password, setPassword] = useState("");
     const [passwordVerification, setPasswordVerification] = useState("");
     const [isSignUp, setIsSignUp] = useState(false); // State to track whether it's a sign-up or login
+    const [showPassword, setShowPassword] = useState(false); // Added state for password visibility
     const navigate = useNavigate();
 
     // Function to handle username input change
@@ -28,6 +29,10 @@ const LoginForm = () => {
     // Function to toggle between sign-up and login
     const toggleSignUp = () => {
         setIsSignUp(!isSignUp);
+    }
+
+    const togglePasswordVisibility = () => {
+      setShowPassword(!showPassword);
     }
 
     // Function to handle sign-up or login button click
@@ -90,36 +95,45 @@ const LoginForm = () => {
       };
 
     return (
-        <div className="cover">
-            <h1>{isSignUp ? "HaaS Sign Up" : "HaaS Login"}</h1>
-            <input
-                type="text"
-                placeholder="username"
-                value={username}
-                onChange={handleUsernameChange}
-            />
-            <input
-                type="password"
-                placeholder="password"
-                value={password}
-                onChange={handlePasswordChange}
-            />
-            {isSignUp && (
-                <input
-                    type="password"
-                    placeholder="verify password"
-                    value={passwordVerification}
-                    onChange={handlePasswordVerificationChange}
-                />
-            )}
-            <div className="login-btn" onClick={handleAuthClick}>
-                {isSignUp ? "Sign Up" : "Login"}
-            </div>
-            <p onClick={toggleSignUp} className="toggle-auth-option">
-                {isSignUp ? "Already have an account? Login" : "Don't have an account? Sign Up"}
-            </p>
+      <div className="cover">
+        <h1>{isSignUp ? "HaaS Sign Up" : "HaaS Login"}</h1>
+        <input
+          type="text"
+          placeholder="username"
+          value={username}
+          onChange={handleUsernameChange}
+        />
+        <input
+          type={showPassword ? 'text' : 'password'} // Toggle password visibility
+          placeholder="password"
+          value={password}
+          onChange={handlePasswordChange}
+        />
+        {isSignUp && (
+          <input
+            type="password"
+            placeholder="verify password"
+            value={passwordVerification}
+            onChange={handlePasswordVerificationChange}
+          />
+        )}
+        <label className="view-password-label">
+          <input
+            type="checkbox"
+            checked={showPassword}
+            onChange={togglePasswordVisibility}
+            style={{ transform: "scale(1.5)" }}
+          />
+          👁️
+        </label>
+        <div className="login-btn" onClick={handleAuthClick}>
+          {isSignUp ? "Sign Up" : "Login"}
         </div>
-    )
+        <p onClick={toggleSignUp} className="toggle-auth-option">
+          {isSignUp ? "Already have an account? Login" : "Don't have an account? Sign Up"}
+        </p>
+      </div>
+    );
 }
 
 export default LoginForm
