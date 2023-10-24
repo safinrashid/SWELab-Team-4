@@ -65,12 +65,15 @@ const LoginForm = () => {
                 navigate("/projects");
               } else {
                 console.error("Sign-up failed. User may already exist.");
+                window.alert("Sign-up failed. User may already exist.");
               }
             } catch (error) {
               console.error("Error:", error);
+              window.alert("Error:", error);
             }
           } else {
             console.error("Password and password verification do not match.");
+            window.alert("Password and password verification do not match.");
           }
         } else {
           try {
@@ -95,9 +98,11 @@ const LoginForm = () => {
               navigate("/projects");
             } else {
               console.error("Login failed. Invalid credentials.");
+              window.alert("Login failed. Invalid credentials.");
             }
           } catch (error) {
             console.error("Error:", error);
+            window.alert("Error:", error);
           }
         }
       };
