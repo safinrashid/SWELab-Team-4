@@ -14,6 +14,7 @@ client = MongoClient("mongodb+srv://admin:securepassword@cluster0.i1vtszj.mongod
 db = client["UserInfo"]
 users_collection = db["Users"]
 projects_collection = db["Projects"]
+hwsets_collection = db["HWSets"]
 # client = MongoClient("mongodb+srv://srashid:4j7MYn0GiqTjY3R1@project.mvmtzkd.mongodb.net/")
 # db = client.Users
 # users_collection = db.UserInfo
@@ -99,8 +100,6 @@ def get_projects():
             "desc": project["desc"],
         })
 
-    print(project_list)
-
     if project_list:
         return jsonify({"message": "Projects found", "projects": project_list}), 200
     else:
@@ -121,6 +120,9 @@ def new_project():
     name = data.get("name")
     desc = data.get("desc")
 
+    if projects_collection.find_one({"id": projectID}):
+        return jsonify({"message": "Project ID already taken"}), 400
+
     project_data = {
         "id": projectID,
         "name": name,
@@ -138,6 +140,85 @@ def new_project():
         "users": [token],
         "hwSets": []
     }}), 201
+
+@app.route('/projects/<projectID>/hwsets', methods=['GET'])
+def get_hwSets(projectID):
+    headers = request.headers
+    bearer = headers.get('Authorization')    # Bearer YourTokenHere
+    token = bearer.split()[1]
+
+    if (token == None):
+        return jsonify({"message": "No auth"}), 401
+    
+    project = projects_collection.find_one({"id": projectID})
+
+    if project == None:
+        return jsonify({"message": "Project not found"}), 404
+
+    if token not in project["users"]:
+        return jsonify({"message": "Unauthorized"}), 401
+    
+    hwSets = []
+    
+    for hwSet in project["hwSets"]:
+
+        hwSetData = hwsets_collection.find_one({"_id": hwSet})
+
+        if (hwSetData == None):
+            continue
+
+        hwSets.append({
+            "name": hwSetData["name"],
+            "capacity": hwSetData["capacity"],
+            "availability": hwSetData["availability"]
+        })
+
+    return jsonify({"message": "hwSets found", "hwSets": hwSets}), 200
+
+@app.route('/projects/<projectID>/hwsets', methods=['POST'])
+def new_hwSet(projectID):
+    headers = request.headers
+    bearer = headers.get('Authorization')    # Bearer YourTokenHere
+    token = bearer.split()[1]
+
+    if (token == None):
+        return jsonify({"message": "No auth"}), 401
+    
+    project = projects_collection.find_one({"id": projectID})
+
+    if project == None:
+        return jsonify({"message": "Project not found"}), 404
+
+    if token not in project["users"]:
+        return jsonify({"message": "Unauthorized"}), 401
+    
+    data = request.get_json()
+
+    name = data.get("name")
+    capacity = data.get("capacity")
+    availability = data.get("availability")
+
+    hwSet_data = {
+        "projectID": projectID,
+        "name": name,
+        "capacity": capacity,
+        "availability": availability,
+    }
+
+    hwSet = hwsets_collection.insert_one(hwSet_data)
+    hwSet_id = hwSet.inserted_id
+
+    projects_collection.update_one({"id": projectID}, {"$push": {"hwSets": hwSet_id}})
+
+    print(str(hwSet_id))
+
+    return jsonify({"message": "HWSet created successfully", "hwSet": {
+        "id": str(hwSet_id),
+        "name": name,
+        "capacity": capacity,
+        "availability": availability,
+    }}), 201
+    
 
 if __name__ == '__main__':
     app.run(host="localhost", port=5000)

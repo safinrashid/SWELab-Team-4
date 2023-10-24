@@ -7,6 +7,7 @@ import Home from './pages/Home';
 import NewProject from './pages/NewProject';
 import ProjectPage from './pages/ProjectPage';
 import { CookiesProvider } from 'react-cookie';
+import NewHWSet from './pages/NewHWSet';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 
@@ -18,6 +19,7 @@ root.render(
         <Route path="/login" element={<Login/>}/>
         <Route path="/projects" element={<Home/>}/>
         <Route path="/projects/:id" element={<ProjectPage/>}/>
+        <Route path="/projects/:id/hwsets/new" element={<NewHWSet/>}/>
         <Route path="/projects/new" element={<NewProject/>}/>
       </Routes>
     </BrowserRouter>

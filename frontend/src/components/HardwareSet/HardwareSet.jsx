@@ -1,10 +1,14 @@
 import React from "react";
 import "./HardwareSet.scss";
 
-function HardwareSet({capacity, availability}) {
+function HardwareSet({name, capacity, availability}) {
+
+    if (name == null && capacity == null && availability == null) return <></>;
+
     return (
         <div className="hw-set">
             <div>
+                <p>Name: <b>{name}</b></p>
                 <p>Capacity: <b>{capacity}</b></p>
                 <p>Availability: <b>{availability}</b></p>
             </div>
