@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import "./loginform.css"
 import { useNavigate } from "react-router-dom";
+import { useCookies } from "react-cookie";
 
 const LoginForm = () => {
     // Create state variables for username, password, and password verification
@@ -10,6 +11,7 @@ const LoginForm = () => {
     const [isSignUp, setIsSignUp] = useState(false); // State to track whether it's a sign-up or login
     const [showPassword, setShowPassword] = useState(false); // Added state for password visibility
     const navigate = useNavigate();
+    const [cookies, setCookie] = useCookies(['userID']);
 
     // Function to handle username input change
     const handleUsernameChange = (event) => {
@@ -52,9 +54,13 @@ const LoginForm = () => {
               });
       
               if (response.status === 201) {
+                const responseData = await response.json();
+
                 console.log("Sign-up successful!");
                 console.log("Username:", username);
                 console.log("Password:", password);
+
+                setCookie("userID", responseData.userID, { path: '/' })
 
                 navigate("/projects");
               } else {
@@ -83,6 +89,8 @@ const LoginForm = () => {
               const responseData = await response.json();
               console.log(responseData.message);
               // You can also redirect the user to a dashboard or perform other actions upon successful login.
+
+              setCookie("userID", responseData.userID, { path: '/' })
             
               navigate("/projects");
             } else {

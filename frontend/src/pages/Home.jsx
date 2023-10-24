@@ -1,10 +1,12 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import "./Home.scss";
 import Project from '../components/Project/Project';
+import { getProjects } from '../api';
+import { useCookies } from 'react-cookie';
 
 function Home() {
 
-    const projects = [
+    const testProjects = [
         {
             name: 'Project 1',
             description: 'This is a project',
@@ -16,6 +18,16 @@ function Home() {
             id: "2"
         }
     ]
+
+    const [projects, setProjects] = useState([]);
+    const [cookies, setCookie] = useCookies(['userID']);
+
+    useEffect(() => {
+        getProjects(cookies.userID).then((response) => {
+            console.log(response)
+            if (response != null) setProjects(response.projects);
+        })
+    }, [])
 
     return (
         <div className='home-container'>

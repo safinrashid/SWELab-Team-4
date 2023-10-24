@@ -1,10 +1,13 @@
 import React from 'react';
 import { redirect, useNavigate } from "react-router-dom";
 import "./NewProject.scss";
+import { newProject } from '../api';
+import { useCookies } from 'react-cookie';
 
 const NewProject = () => {
 
     const navigate = useNavigate();
+    const [cookies, setCookie] = useCookies(['userID']);
 
     const createProject = () => {
         const name = document.querySelector('input[name="name"]').value;
@@ -13,7 +16,11 @@ const NewProject = () => {
 
         console.log(name, desc, id);
 
-        navigate(`/projects`);
+        newProject(cookies.userID, {
+            name: name,
+            desc: desc,
+            id: id
+        }).then(() => navigate(`/projects`));
     }
 
     return (
