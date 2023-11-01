@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import "./Home.scss";
 import Project from '../components/Project/Project';
-import { getProjects } from '../api';
+import { getAbsentProjects, getProjects, joinProject } from '../api';
 import { useCookies } from 'react-cookie';
 
 function Home() {
@@ -20,6 +20,7 @@ function Home() {
     ]
 
     const [projects, setProjects] = useState([]);
+    const [absentProjects, setAbsentProjects] = useState([]);
     const [cookies, setCookie] = useCookies(['userID']);
 
     useEffect(() => {
@@ -29,11 +30,38 @@ function Home() {
         })
     }, [])
 
+    var toggleAbsentProjects = () => {
+
+        if (absentProjects.length > 0) {
+            setAbsentProjects([]);
+        } else {
+            getAbsentProjects(cookies.userID).then((response) => {
+                console.log(response)
+                if (response != null) setAbsentProjects(response.projects);
+            })
+        }
+    }
+
+    var joinProjectButton = (id) => {
+        joinProject(cookies.userID, id).then((response) => {
+            if (response != null) {
+                setProjects([...projects, response.project]);
+                setAbsentProjects(absentProjects.filter((project) => project.id !== id));
+            }
+        })
+    }
+
     return (
         <div className='home-container'>
             <div className="projects-section">
                 <h1>Choose a project</h1>
                 <a href="/projects/new" className="projects-new">New Project</a>
+                <button onClick={() => toggleAbsentProjects()} className="projects-new">Join Projects</button>
+                <div className="projects-absent-container">
+                    {absentProjects.map((project) => 
+                        <div className="projects-absent" key={project.id}>{project.name} <button onClick={() => joinProjectButton(project.id)}>Join</button></div>
+                    )}
+                </div>
                 <div className="projects-container">
                     {projects.map((project) => (<Project {...project}/>))}
                 </div>

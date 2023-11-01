@@ -1,7 +1,24 @@
 import React from "react";
+import { useParams } from "react-router-dom";
+import { useCookies } from 'react-cookie';
+import { checkInHWSet, checkOutHWSet } from "../../api";
 import "./HardwareSet.scss";
 
-function HardwareSet({name, capacity, availability}) {
+function HardwareSet({hwID, name, capacity, availability}) {    
+    const { id } = useParams();
+    const [cookies, setCookie] = useCookies(['userID']);
+    
+    var checkInHardware = (qty) => {
+        var qty = parseInt(document.getElementById("quantity-input").value);
+
+        checkInHWSet(cookies.userID, id, hwID, qty);
+    }
+
+    var checkOutHardware = () => {
+        var qty = parseInt(document.getElementById("quantity-input").value);
+
+        checkOutHWSet(cookies.userID, id, hwID, qty);
+    }
 
     if (name == null && capacity == null && availability == null) return <></>;
 
@@ -12,10 +29,10 @@ function HardwareSet({name, capacity, availability}) {
                 <p>Capacity: <b>{capacity}</b></p>
                 <p>Availability: <b>{availability}</b></p>
             </div>
-            <input type="text" name="name" placeholder="Quantity" />
+            <input id="quantity-input" type="text" name="quantity" placeholder="Quantity" />
             <div className="hw-set-buttons">
-                <button className="hw-set-checkin">Check in</button>
-                <button className="hw-set-checkout">Check out</button>
+                <button className="hw-set-checkin" onClick={() => checkInHardware()}>Check in</button>
+                <button className="hw-set-checkout" onClick={() => checkOutHardware()}>Check out</button>
             </div>
         </div>
     )
