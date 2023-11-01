@@ -1,5 +1,6 @@
 from flask import Flask, request, jsonify
 from flask_cors import CORS
+from bson import ObjectId
 from Crypto.Cipher import AES
 from Crypto.Random import get_random_bytes
 from Crypto.Util.Padding import pad
@@ -88,9 +89,16 @@ def get_projects():
 
     if (token == None):
         return jsonify({"message": "No auth"}), 400
+    
+    args = request.args
+    absentProjects = args.get('absent')
 
-    # Find the project that the user is a part of
-    projects = projects_collection.find({"users": {"$in": [token]}})
+    if absentProjects:
+        # Find the project that the user is not a part of
+        projects = projects_collection.find({"users": {"$nin": [token]}})
+    else:
+        # Find the project that the user is a part of
+        projects = projects_collection.find({"users": {"$in": [token]}})
 
     project_list = []
     for project in projects:
@@ -168,6 +176,7 @@ def get_hwSets(projectID):
             continue
 
         hwSets.append({
+            "hwID": str(hwSetData["_id"]),
             "name": hwSetData["name"],
             "capacity": hwSetData["capacity"],
             "availability": hwSetData["availability"]
@@ -218,7 +227,84 @@ def new_hwSet(projectID):
         "capacity": capacity,
         "availability": availability,
     }}), 201
+
+@app.route('/projects/<projectID>/hwsets/<hwSetID>/checkin', methods=['POST'])
+def update_hwSet_checkIn(projectID, hwSetID):
+
+    data = request.get_json()
+
+    headers = request.headers
+    bearer = headers.get('Authorization')    # Bearer YourTokenHere
+    token = bearer.split()[1]
+    quantity = data.get("quantity")
+
+    if (token == None):
+        return jsonify({"message": "No auth"}), 401
     
+    project = projects_collection.find_one({"id": projectID})
+
+    if project == None:
+        return jsonify({"message": "Project not found"}), 404
+
+    if token not in project["users"]:
+        return jsonify({"message": "Unauthorized"}), 401
+    
+    hwSet = hwsets_collection.find_one({"_id": ObjectId(hwSetID)})
+
+    if hwSet == None:
+        return jsonify({"message": "HWSet not found"}), 404
+    
+    user = [user for user in hwSet["users"] if user["userID"] == token]
+
+    if user == None:
+        return jsonify({"message": "This user has not availibility"}), 401
+    
+    if user["availability"] < quantity:
+        return jsonify({"message": "Not enough availability"}), 400
+    
+    hwsets_collection.update_one({"_id": ObjectId(hwSetID)}, {"$inc": {"availability": +quantity}})
+    hwsets_collection.update_one({"_id": ObjectId(hwSetID)}, {"$inc": {"users.$[elem].availability": -quantity}}, array_filters=[{"elem.userID": token}])
+
+    return jsonify({"message": "Updated", "status": 200})
+
+@app.route('/projects/<projectID>/hwsets/<hwSetID>/checkout', methods=['POST'])
+def update_hwSet_checkOut(projectID, hwSetID):
+
+    data = request.get_json()
+
+    headers = request.headers
+    bearer = headers.get('Authorization')    # Bearer YourTokenHere
+    token = bearer.split()[1]
+    quantity = int(data.get("quantity"))
+
+    if (token == None):
+        return jsonify({"message": "No auth"}), 401
+    
+    project = projects_collection.find_one({"id": projectID})
+
+    if project == None:
+        return jsonify({"message": "Project not found"}), 404
+
+    if token not in project["users"]:
+        return jsonify({"message": "Unauthorized"}), 401
+    
+    hwSet = hwsets_collection.find_one({"_id": ObjectId(hwSetID)})
+
+    if hwSet == None:
+        return jsonify({"message": "HWSet not found"}), 404
+    
+    user = [user for user in hwSet["users"] if user["userID"] == token]
+
+    if user == None:
+        return jsonify({"message": "This user has not availibility"}), 401
+    
+    if hwSet["availability"] < quantity:
+        return jsonify({"message": "Not enough availability"}), 400
+    
+    hwsets_collection.update_one({"_id": ObjectId(hwSetID)}, {"$inc": {"availability": -quantity}})
+    hwsets_collection.update_one({"_id": ObjectId(hwSetID)}, {"$inc": {"users.$[elem].availability": +quantity}}, array_filters=[{"elem.userID": token}])
+    
+    return jsonify({"message": "Updated", "status": 200})
 
 if __name__ == '__main__':
     app.run(host="localhost", port=5000)
