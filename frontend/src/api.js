@@ -4,7 +4,7 @@ async function getProjects(auth) {
 	if (auth == null || auth === "") return null;
 
 	const response = await axios
-		.get("http://localhost:5000/projects", {
+		.get("http://localhost:8000/projects", {
 			headers: {
 				Authorization: "Bearer " + auth,
 				"Content-Type": "application/x-www-form-urlencoded"
@@ -23,7 +23,7 @@ async function getAbsentProjects(auth) {
 	if (auth == null || auth === "") return null;
 
 	const response = await axios
-		.get("http://localhost:5000/projects", {
+		.get("http://localhost:8000/projects", {
 			headers: {
 				Authorization: "Bearer " + auth,
 				"Content-Type": "application/x-www-form-urlencoded"
@@ -46,7 +46,7 @@ async function getProject(auth, projectID) {
 	if (projectID == null || projectID === "") return null;
 
 	const response = await axios
-		.get("http://localhost:5000/projects/" + projectID, {
+		.get("http://localhost:8000/projects/" + projectID, {
 			headers: {
 				Authorization: "Bearer " + auth,
 				"Content-Type": "application/x-www-form-urlencoded"
@@ -66,7 +66,7 @@ async function newProject(auth, project) {
 	if (project == null) return null;
 
 	const response = await axios
-		.post("http://localhost:5000/projects", project, {
+		.post("http://localhost:8000/projects", project, {
 			headers: {
 				Authorization: "Bearer " + auth,
 				"Content-Type": "application/json"
@@ -86,7 +86,7 @@ async function getHWSets(auth, projectID) {
 	if (projectID == null || projectID === "") return null;
 
 	const response = await axios
-		.get(`http://localhost:5000/projects/${projectID}/hwsets`, {
+		.get(`http://localhost:8000/projects/${projectID}/hwsets`, {
 			headers: {
 				Authorization: "Bearer " + auth,
 				"Content-Type": "application/x-www-form-urlencoded"
@@ -107,7 +107,7 @@ async function newHWSet(auth, projectID, hwSet) {
 	if (hwSet == null) return null;
 
 	const response = await axios
-		.post(`http://localhost:5000/projects/${projectID}/hwsets`, hwSet, {
+		.post(`http://localhost:8000/projects/${projectID}/hwsets`, hwSet, {
 			headers: {
 				Authorization: "Bearer " + auth,
 				"Content-Type": "application/json"
@@ -127,7 +127,7 @@ async function joinProject(auth, projectID) {
 	if (projectID == null || projectID === "") return null;
 
 	const response = await axios
-		.post(`http://localhost:5000/projects/${projectID}/join`, {
+		.post(`http://localhost:8000/projects/${projectID}/join`, {
 			headers: {
 				Authorization: "Bearer " + auth,
 				"Content-Type": "application/json"
@@ -147,7 +147,7 @@ async function leaveProject(auth, projectID) {
 	if (projectID == null || projectID === "") return null;
 
 	const response = await axios
-		.post(`http://localhost:5000/projects/${projectID}/leave`, {
+		.post(`http://localhost:8000/projects/${projectID}/leave`, {
 			headers: {
 				Authorization: "Bearer " + auth,
 				"Content-Type": "application/json"
@@ -169,7 +169,7 @@ async function checkInHWSet(auth, projectID, hwSetID, quantity) {
 
 	const response = await axios
 		.post(
-			`http://localhost:5000/projects/${projectID}/hwsets/${hwSetID}/checkin`,
+			`http://localhost:8000/projects/${projectID}/hwsets/${hwSetID}/checkin`,
 			{
 					quantity: quantity
 			},
@@ -198,7 +198,7 @@ async function checkOutHWSet(auth, projectID, hwSetID, quantity) {
 
 	const response = await axios
 		.post(
-			`http://localhost:5000/projects/${projectID}/hwsets/${hwSetID}/checkout`,
+			`http://localhost:8000/projects/${projectID}/hwsets/${hwSetID}/checkout`,
 			{
 					quantity: quantity
 			},

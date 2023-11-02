@@ -307,4 +307,4 @@ def update_hwSet_checkOut(projectID, hwSetID):
     return jsonify({"message": "Updated", "status": 200})
 
 if __name__ == '__main__':
-    app.run(host="localhost", port=5000)
+    app.run(host="localhost", port=8000)
