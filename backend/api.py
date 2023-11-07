@@ -210,8 +210,9 @@ def new_hwSet(projectID):
     hwSet_data = {
         "projectID": projectID,
         "name": name,
-        "capacity": capacity,
-        "availability": availability,
+        "capacity": int(capacity),
+        "availability": int(availability),
+        "users": [{"userID": token, "quantity": 0}]
     }
 
     hwSet = hwsets_collection.insert_one(hwSet_data)
@@ -262,16 +263,16 @@ def update_hwSet_checkIn(projectID, hwSetID):
             break
 
     if user == None:
-        return jsonify({"message": "This user has not availibility"}), 401
+        return jsonify({"message": "This user is not registered with this HWSet"}), 401
     
-    if user["availability"] < quantity:
-        return jsonify({"message": "Not enough availability"}), 400
+    if user["quantity"] < quantity:
+        return jsonify({"message": "This user cannot checkin that amount"}), 400
     
     # hwsets_collection.update_one({"_id": ObjectId(hwSetID)}, {"$inc": {"availability": +quantity}})
     # hwsets_collection.update_one({"_id": ObjectId(hwSetID)}, {"$inc": {"users.$[elem].availability": -quantity}}, array_filters=[{"elem.userID": token}])
     hwsets_collection.find_one_and_update(
         {"_id": ObjectId(hwSetID), "users.userID": token},
-        {"$inc": {"availability": +quantity, "users.$.availability": -quantity}}
+        {"$inc": {"availability": +quantity, "users.$.quantity": -quantity}}
     )
 
     return jsonify({"message": "Updated", "status": 200})
@@ -305,7 +306,7 @@ def update_hwSet_checkOut(projectID, hwSetID):
     user = [user for user in hwSet["users"] if user["userID"] == token]
 
     if user == None:
-        return jsonify({"message": "This user has not availibility"}), 401
+        return jsonify({"message": "This user is not registered with this HWSet"}), 401
     
     if hwSet["availability"] < quantity:
         return jsonify({"message": "Not enough availability"}), 400
@@ -314,7 +315,7 @@ def update_hwSet_checkOut(projectID, hwSetID):
     # hwsets_collection.update_one({"_id": ObjectId(hwSetID)}, {"$inc": {"users.$[elem].availability": +quantity}}, array_filters=[{"elem.userID": token}])
     hwsets_collection.find_one_and_update(
         {"_id": ObjectId(hwSetID), "users.userID": token},
-        {"$inc": {"availability": -quantity, "users.$.availability": +quantity}}
+        {"$inc": {"availability": -quantity, "users.$.quantity": +quantity}}
     )
 
     return jsonify({"message": "Updated", "status": 200})
