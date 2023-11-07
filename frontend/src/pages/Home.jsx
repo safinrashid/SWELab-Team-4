@@ -22,6 +22,7 @@ function Home() {
     const [projects, setProjects] = useState([]);
     const [absentProjects, setAbsentProjects] = useState([]);
     const [cookies, setCookie] = useCookies(['userID']);
+    const [showJoinButton, setShowJoinButton] = useState(false);
 
     useEffect(() => {
         getProjects(cookies.userID).then((response) => {
@@ -38,6 +39,7 @@ function Home() {
             getAbsentProjects(cookies.userID).then((response) => {
                 console.log(response)
                 if (response != null) setAbsentProjects(response.projects);
+                setShowJoinButton(true);
             })
         }
     }
@@ -56,11 +58,17 @@ function Home() {
             <div className="projects-section">
                 <h1>Choose a project</h1>
                 <a href="/projects/new" className="projects-new">New Project</a>
-                <button onClick={() => toggleAbsentProjects()} className="projects-new">Join Projects</button>
+                <button onClick={() => toggleAbsentProjects()} className="projects-new">View Projects</button>
                 <div className="projects-absent-container">
-                    {absentProjects.map((project) => 
-                        <div className="projects-absent" key={project.id}>{project.name} <button onClick={() => joinProjectButton(project.id)}>Join</button></div>
+                    {absentProjects.length > 0 && (
+                        <select onChange={(e) => joinProjectButton(e.target.value)}>
+                            <option value="">Select a project to join</option>
+                            {absentProjects.map((project) => 
+                                <option key={project.id} value={project.id}>{project.name}</option>
+                            )}
+                        </select>
                     )}
+                    {showJoinButton && <button onClick={() => joinProject()} className="projects-new">Join Project</button>}
                 </div>
                 <div className="projects-container">
                     {projects.map((project) => (<Project {...project}/>))}
