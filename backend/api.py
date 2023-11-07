@@ -253,8 +253,13 @@ def update_hwSet_checkIn(projectID, hwSetID):
 
     if hwSet == None:
         return jsonify({"message": "HWSet not found"}), 404
-    
-    user = [user for user in hwSet["users"] if user["userID"] == token]
+
+    # user = [user for user in hwSet["users"] if user["userID"] == token]
+    user = None
+    for users in hwSet["users"]:
+        if users["userID"] == token:
+            user = users
+            break
 
     if user == None:
         return jsonify({"message": "This user has not availibility"}), 401
@@ -262,8 +267,12 @@ def update_hwSet_checkIn(projectID, hwSetID):
     if user["availability"] < quantity:
         return jsonify({"message": "Not enough availability"}), 400
     
-    hwsets_collection.update_one({"_id": ObjectId(hwSetID)}, {"$inc": {"availability": +quantity}})
-    hwsets_collection.update_one({"_id": ObjectId(hwSetID)}, {"$inc": {"users.$[elem].availability": -quantity}}, array_filters=[{"elem.userID": token}])
+    # hwsets_collection.update_one({"_id": ObjectId(hwSetID)}, {"$inc": {"availability": +quantity}})
+    # hwsets_collection.update_one({"_id": ObjectId(hwSetID)}, {"$inc": {"users.$[elem].availability": -quantity}}, array_filters=[{"elem.userID": token}])
+    hwsets_collection.find_one_and_update(
+        {"_id": ObjectId(hwSetID), "users.userID": token},
+        {"$inc": {"availability": +quantity, "users.$.availability": -quantity}}
+    )
 
     return jsonify({"message": "Updated", "status": 200})
 
@@ -287,7 +296,7 @@ def update_hwSet_checkOut(projectID, hwSetID):
 
     if token not in project["users"]:
         return jsonify({"message": "Unauthorized"}), 401
-    
+
     hwSet = hwsets_collection.find_one({"_id": ObjectId(hwSetID)})
 
     if hwSet == None:
@@ -301,9 +310,13 @@ def update_hwSet_checkOut(projectID, hwSetID):
     if hwSet["availability"] < quantity:
         return jsonify({"message": "Not enough availability"}), 400
     
-    hwsets_collection.update_one({"_id": ObjectId(hwSetID)}, {"$inc": {"availability": -quantity}})
-    hwsets_collection.update_one({"_id": ObjectId(hwSetID)}, {"$inc": {"users.$[elem].availability": +quantity}}, array_filters=[{"elem.userID": token}])
-    
+    # hwsets_collection.update_one({"_id": ObjectId(hwSetID)}, {"$inc": {"availability": -quantity}})
+    # hwsets_collection.update_one({"_id": ObjectId(hwSetID)}, {"$inc": {"users.$[elem].availability": +quantity}}, array_filters=[{"elem.userID": token}])
+    hwsets_collection.find_one_and_update(
+        {"_id": ObjectId(hwSetID), "users.userID": token},
+        {"$inc": {"availability": -quantity, "users.$.availability": +quantity}}
+    )
+
     return jsonify({"message": "Updated", "status": 200})
 
 if __name__ == '__main__':
