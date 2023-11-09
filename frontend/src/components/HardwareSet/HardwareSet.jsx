@@ -9,13 +9,13 @@ function HardwareSet({hwID, name, capacity, availability}) {
     const [cookies, setCookie] = useCookies(['userID']);
     
     var checkInHardware = (qty) => {
-        var qty = parseInt(document.getElementById("quantity-input").value);
+        var qty = parseInt(document.getElementById(`quantity-input-${name}`).value);
 
         checkInHWSet(cookies.userID, id, hwID, qty);
     }
 
     var checkOutHardware = () => {
-        var qty = parseInt(document.getElementById("quantity-input").value);
+        var qty = parseInt(document.getElementById(`quantity-input-${name}`).value);
 
         checkOutHWSet(cookies.userID, id, hwID, qty);
     }
@@ -29,7 +29,7 @@ function HardwareSet({hwID, name, capacity, availability}) {
                 <p>Capacity: <b>{capacity}</b></p>
                 <p>Availability: <b>{availability}</b></p>
             </div>
-            <input id="quantity-input" type="text" name="quantity" placeholder="Quantity" />
+            <input id={`quantity-input-${name}`} type="text" name="quantity" placeholder="Quantity" />
             <div className="hw-set-buttons">
                 <button className="hw-set-checkin" onClick={() => checkInHardware()}>Check in</button>
                 <button className="hw-set-checkout" onClick={() => checkOutHardware()}>Check out</button>
