@@ -181,6 +181,7 @@ async function checkInHWSet(auth, projectID, hwSetID, quantity) {
 			}
 		)
 		.catch((error) => {
+			window.alert(error.response.data.message)
 			return null;
 		});
 
@@ -210,6 +211,7 @@ async function checkOutHWSet(auth, projectID, hwSetID, quantity) {
 			}
 		)
 		.catch((error) => {
+			window.alert(error.response.data.message)
 			return null;
 		});
 
