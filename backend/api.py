@@ -140,6 +140,31 @@ def new_project():
     }
 
     projects_collection.insert_one(project_data)
+    
+    # Create the two hardcoded HWSets
+    HWSet1_data = {
+        "projectID": projectID,
+        "name": "HWSet1",
+        "capacity": 100,
+        "availability": 100,
+        "users": [{"userID": token, "quantity": 0}]
+    }
+    HWSet2_data = {
+        "projectID": projectID,
+        "name": "HWSet2",
+        "capacity": 100,
+        "availability": 100,
+        "users": [{"userID": token, "quantity": 0}]
+    }
+
+    HWSet1 = hwsets_collection.insert_one(HWSet1_data)
+    HWSet2 = hwsets_collection.insert_one(HWSet2_data)
+    
+    HWSet1_id = HWSet1.inserted_id
+    HWSet2_id = HWSet2.inserted_id
+
+    projects_collection.update_one({"id": projectID}, {"$push": {"hwSets": HWSet1_id}})
+    projects_collection.update_one({"id": projectID}, {"$push": {"hwSets": HWSet2_id}})
 
     return jsonify({"message": "Project created successfully", "project": {
         "id": projectID,
