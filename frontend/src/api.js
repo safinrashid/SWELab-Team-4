@@ -73,6 +73,7 @@ async function newProject(auth, project) {
 			}
 		})
 		.catch((error) => {
+			window.alert(error.response.data.message)
 			return null;
 		});
 

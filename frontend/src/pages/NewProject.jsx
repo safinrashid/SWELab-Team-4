@@ -20,7 +20,11 @@ const NewProject = () => {
             name: name,
             desc: desc,
             id: id
-        }).then(() => navigate(`/projects`));
+        }).then((result) => {
+            if (result != null) {
+                navigate(`/projects`)
+            }
+        });
     }
 
     return (
