@@ -24,12 +24,25 @@ function Home() {
     const [cookies, setCookie] = useCookies(['userID']);
     const [showJoinButton, setShowJoinButton] = useState(false);
 
+    // Load projects from local storage when component mounts
+    useEffect(() => {
+        const storedProjects = localStorage.getItem('projects-${cookies.userID}');
+        if (storedProjects) {
+            setProjects(JSON.parse(storedProjects));
+        }
+    }, []);
+
+        // Save projects to local storage whenever it changes
+    useEffect(() => {
+        localStorage.setItem(`projects-${cookies.userID}`, JSON.stringify(projects));
+    }, [projects]);
+
     useEffect(() => {
         getProjects(cookies.userID).then((response) => {
             console.log(response)
             if (response != null) setProjects(response.projects);
         })
-    }, [])
+    }, [projects])
 
     var toggleAbsentProjects = () => {
 
@@ -45,12 +58,27 @@ function Home() {
     }
 
     var joinProjectButton = (id) => {
-        joinProject(cookies.userID, id).then((response) => {
-            if (response != null) {
-                setProjects([...projects, response.project]);
+        fetch('http://localhost:8000/projects/join', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${cookies.userID}`, 
+            },
+            body: JSON.stringify({ id }),
+        })
+        .then(response => {
+            console.log(response);
+            return response.json();
+        })
+        .then(data => {
+            if (data.project != null) {
+                setProjects([...projects, data.project]);
                 setAbsentProjects(absentProjects.filter((project) => project.id !== id));
             }
         })
+        .catch((error) => {
+            console.error('Error:', error);
+        });
     }
 
     return (
