@@ -1,14 +1,18 @@
-from flask import Flask, request, jsonify
+from json import dumps
+from flask import Flask, request, jsonify, current_app
 from flask_cors import CORS
 from bson import ObjectId
+from bson import json_util
 from Crypto.Cipher import AES
 from Crypto.Random import get_random_bytes
 from Crypto.Util.Padding import pad
 from pymongo import MongoClient
 import uuid
+import json
 
 app = Flask(__name__)
 cors = CORS(app, resources={r"/*": {"origins": "*"}})
+app.debug = True
 
 # MongoDB connection setup
 client = MongoClient("mongodb+srv://admin:securepassword@cluster0.i1vtszj.mongodb.net/?retryWrites=true&w=majority")
@@ -173,6 +177,27 @@ def new_project():
         "users": [token],
         "hwSets": []
     }}), 201
+
+@app.route('/projects/join', methods=['POST'])
+def join_projects():
+    headers = request.headers
+    bearer = headers.get('Authorization')    # Bearer YourTokenHere
+    if bearer is None:
+        return jsonify({"message": "Authorization header is missing"}), 400
+    token = bearer.split()[1]  # YourTokenHere
+    if token == None:
+        return jsonify({"message": "No auth"}), 400
+    project_id = request.json['id']
+    project = projects_collection.find_one({"id": project_id})
+    if project is None:
+        return jsonify({"message": "Project not found"}), 404
+    else:
+        # Add the user to the project
+        projects_collection.update_one({"id": project_id}, {"$push": {"users": token}})
+        # Get the updated project
+        project = projects_collection.find_one({"id": project_id})
+        project_json = json.loads(json_util.dumps(project))  # Convert ObjectId to string
+        return jsonify({"message": "Project found", "project": project_json}), 200
 
 @app.route('/projects/<projectID>/hwsets', methods=['GET'])
 def get_hwSets(projectID):
