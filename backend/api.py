@@ -1,14 +1,18 @@
-from flask import Flask, request, jsonify
+from json import dumps
+from flask import Flask, request, jsonify, current_app
 from flask_cors import CORS
 from bson import ObjectId
+from bson import json_util
 from Crypto.Cipher import AES
 from Crypto.Random import get_random_bytes
 from Crypto.Util.Padding import pad
 from pymongo import MongoClient
 import uuid
+import json
 
 app = Flask(__name__)
 cors = CORS(app, resources={r"/*": {"origins": "*"}})
+app.debug = True
 
 # MongoDB connection setup
 client = MongoClient("mongodb+srv://admin:securepassword@cluster0.i1vtszj.mongodb.net/?retryWrites=true&w=majority")
@@ -140,6 +144,31 @@ def new_project():
     }
 
     projects_collection.insert_one(project_data)
+    
+    # Create the two hardcoded HWSets
+    HWSet1_data = {
+        "projectID": projectID,
+        "name": "HWSet1",
+        "capacity": 100,
+        "availability": 100,
+        "users": [{"userID": token, "quantity": 0}]
+    }
+    HWSet2_data = {
+        "projectID": projectID,
+        "name": "HWSet2",
+        "capacity": 100,
+        "availability": 100,
+        "users": [{"userID": token, "quantity": 0}]
+    }
+
+    HWSet1 = hwsets_collection.insert_one(HWSet1_data)
+    HWSet2 = hwsets_collection.insert_one(HWSet2_data)
+    
+    HWSet1_id = HWSet1.inserted_id
+    HWSet2_id = HWSet2.inserted_id
+
+    projects_collection.update_one({"id": projectID}, {"$push": {"hwSets": HWSet1_id}})
+    projects_collection.update_one({"id": projectID}, {"$push": {"hwSets": HWSet2_id}})
 
     return jsonify({"message": "Project created successfully", "project": {
         "id": projectID,
@@ -148,6 +177,27 @@ def new_project():
         "users": [token],
         "hwSets": []
     }}), 201
+
+@app.route('/projects/join', methods=['POST'])
+def join_projects():
+    headers = request.headers
+    bearer = headers.get('Authorization')    # Bearer YourTokenHere
+    if bearer is None:
+        return jsonify({"message": "Authorization header is missing"}), 400
+    token = bearer.split()[1]  # YourTokenHere
+    if token == None:
+        return jsonify({"message": "No auth"}), 400
+    project_id = request.json['id']
+    project = projects_collection.find_one({"id": project_id})
+    if project is None:
+        return jsonify({"message": "Project not found"}), 404
+    else:
+        # Add the user to the project
+        projects_collection.update_one({"id": project_id}, {"$push": {"users": token}})
+        # Get the updated project
+        project = projects_collection.find_one({"id": project_id})
+        project_json = json.loads(json_util.dumps(project))  # Convert ObjectId to string
+        return jsonify({"message": "Project found", "project": project_json}), 200
 
 @app.route('/projects/<projectID>/hwsets', methods=['GET'])
 def get_hwSets(projectID):
@@ -237,7 +287,18 @@ def update_hwSet_checkIn(projectID, hwSetID):
     headers = request.headers
     bearer = headers.get('Authorization')    # Bearer YourTokenHere
     token = bearer.split()[1]
-    quantity = data.get("quantity")
+    try:
+        quantity = int(data.get("quantity"))
+    except:
+        quantity = None
+        return jsonify({"message": "Please specify a quantity"}), 400
+
+    # handle if quantity is empty
+    if not quantity:
+        return jsonify({"message": "Please specify a quantity"}), 400
+    # handle if quantity is negative
+    if quantity < 0:
+        return jsonify({"message": "Please specify a positive quantity"}), 400
 
     if (token == None):
         return jsonify({"message": "No auth"}), 401
@@ -254,26 +315,13 @@ def update_hwSet_checkIn(projectID, hwSetID):
 
     if hwSet == None:
         return jsonify({"message": "HWSet not found"}), 404
-
-    # user = [user for user in hwSet["users"] if user["userID"] == token]
-    user = None
-    for users in hwSet["users"]:
-        if users["userID"] == token:
-            user = users
-            break
-
-    if user == None:
-        return jsonify({"message": "This user is not registered with this HWSet"}), 401
     
-    if user["quantity"] < quantity:
+
+    # Check to make sure that the user does not checkin more than the capacity
+    if hwSet["availability"] + quantity > hwSet["capacity"]:
         return jsonify({"message": "This user cannot checkin that amount"}), 400
-    
-    # hwsets_collection.update_one({"_id": ObjectId(hwSetID)}, {"$inc": {"availability": +quantity}})
-    # hwsets_collection.update_one({"_id": ObjectId(hwSetID)}, {"$inc": {"users.$[elem].availability": -quantity}}, array_filters=[{"elem.userID": token}])
-    hwsets_collection.find_one_and_update(
-        {"_id": ObjectId(hwSetID), "users.userID": token},
-        {"$inc": {"availability": +quantity, "users.$.quantity": -quantity}}
-    )
+
+    hwsets_collection.update_one({"_id": ObjectId(hwSetID)}, {"$inc": {"availability": +quantity}})
 
     return jsonify({"message": "Updated", "status": 200})
 
@@ -285,7 +333,18 @@ def update_hwSet_checkOut(projectID, hwSetID):
     headers = request.headers
     bearer = headers.get('Authorization')    # Bearer YourTokenHere
     token = bearer.split()[1]
-    quantity = int(data.get("quantity"))
+    try:
+        quantity = int(data.get("quantity"))
+    except:
+        quantity = None
+        return jsonify({"message": "Please specify a quantity"}), 400
+
+    # handle if quantity is empty
+    if not quantity:
+        return jsonify({"message": "Please specify a quantity"}), 400
+    # handle if quantity is negative
+    if quantity < 0:
+        return jsonify({"message": "Please specify a positive quantity"}), 400
 
     if (token == None):
         return jsonify({"message": "No auth"}), 401
@@ -303,21 +362,11 @@ def update_hwSet_checkOut(projectID, hwSetID):
     if hwSet == None:
         return jsonify({"message": "HWSet not found"}), 404
     
-    user = [user for user in hwSet["users"] if user["userID"] == token]
-
-    if user == None:
-        return jsonify({"message": "This user is not registered with this HWSet"}), 401
+    # Check to make sure that the user does not checkout more than the availability
+    if hwSet["availability"] - quantity < 0:
+        return jsonify({"message": "This user cannot checkout that amount"}), 400
     
-    if hwSet["availability"] < quantity:
-        return jsonify({"message": "Not enough availability"}), 400
-    
-    # hwsets_collection.update_one({"_id": ObjectId(hwSetID)}, {"$inc": {"availability": -quantity}})
-    # hwsets_collection.update_one({"_id": ObjectId(hwSetID)}, {"$inc": {"users.$[elem].availability": +quantity}}, array_filters=[{"elem.userID": token}])
-    hwsets_collection.find_one_and_update(
-        {"_id": ObjectId(hwSetID), "users.userID": token},
-        {"$inc": {"availability": -quantity, "users.$.quantity": +quantity}}
-    )
-
+    hwsets_collection.update_one({"_id": ObjectId(hwSetID)}, {"$inc": {"availability": -quantity}})
     return jsonify({"message": "Updated", "status": 200})
 
 if __name__ == '__main__':
