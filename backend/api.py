@@ -287,7 +287,18 @@ def update_hwSet_checkIn(projectID, hwSetID):
     headers = request.headers
     bearer = headers.get('Authorization')    # Bearer YourTokenHere
     token = bearer.split()[1]
-    quantity = data.get("quantity")
+    try:
+        quantity = int(data.get("quantity"))
+    except:
+        quantity = None
+        return jsonify({"message": "Please specify a quantity"}), 400
+
+    # handle if quantity is empty
+    if not quantity:
+        return jsonify({"message": "Please specify a quantity"}), 400
+    # handle if quantity is negative
+    if quantity < 0:
+        return jsonify({"message": "Please specify a positive quantity"}), 400
 
     if (token == None):
         return jsonify({"message": "No auth"}), 401
@@ -304,26 +315,13 @@ def update_hwSet_checkIn(projectID, hwSetID):
 
     if hwSet == None:
         return jsonify({"message": "HWSet not found"}), 404
-
-    # user = [user for user in hwSet["users"] if user["userID"] == token]
-    user = None
-    for users in hwSet["users"]:
-        if users["userID"] == token:
-            user = users
-            break
-
-    if user == None:
-        return jsonify({"message": "This user is not registered with this HWSet"}), 401
     
-    if user["quantity"] < quantity:
+
+    # Check to make sure that the user does not checkin more than the capacity
+    if hwSet["availability"] + quantity > hwSet["capacity"]:
         return jsonify({"message": "This user cannot checkin that amount"}), 400
-    
-    # hwsets_collection.update_one({"_id": ObjectId(hwSetID)}, {"$inc": {"availability": +quantity}})
-    # hwsets_collection.update_one({"_id": ObjectId(hwSetID)}, {"$inc": {"users.$[elem].availability": -quantity}}, array_filters=[{"elem.userID": token}])
-    hwsets_collection.find_one_and_update(
-        {"_id": ObjectId(hwSetID), "users.userID": token},
-        {"$inc": {"availability": +quantity, "users.$.quantity": -quantity}}
-    )
+
+    hwsets_collection.update_one({"_id": ObjectId(hwSetID)}, {"$inc": {"availability": +quantity}})
 
     return jsonify({"message": "Updated", "status": 200})
 
@@ -335,7 +333,18 @@ def update_hwSet_checkOut(projectID, hwSetID):
     headers = request.headers
     bearer = headers.get('Authorization')    # Bearer YourTokenHere
     token = bearer.split()[1]
-    quantity = int(data.get("quantity"))
+    try:
+        quantity = int(data.get("quantity"))
+    except:
+        quantity = None
+        return jsonify({"message": "Please specify a quantity"}), 400
+
+    # handle if quantity is empty
+    if not quantity:
+        return jsonify({"message": "Please specify a quantity"}), 400
+    # handle if quantity is negative
+    if quantity < 0:
+        return jsonify({"message": "Please specify a positive quantity"}), 400
 
     if (token == None):
         return jsonify({"message": "No auth"}), 401
@@ -353,21 +362,11 @@ def update_hwSet_checkOut(projectID, hwSetID):
     if hwSet == None:
         return jsonify({"message": "HWSet not found"}), 404
     
-    user = [user for user in hwSet["users"] if user["userID"] == token]
-
-    if user == None:
-        return jsonify({"message": "This user is not registered with this HWSet"}), 401
+    # Check to make sure that the user does not checkout more than the availability
+    if hwSet["availability"] - quantity < 0:
+        return jsonify({"message": "This user cannot checkout that amount"}), 400
     
-    if hwSet["availability"] < quantity:
-        return jsonify({"message": "Not enough availability"}), 400
-    
-    # hwsets_collection.update_one({"_id": ObjectId(hwSetID)}, {"$inc": {"availability": -quantity}})
-    # hwsets_collection.update_one({"_id": ObjectId(hwSetID)}, {"$inc": {"users.$[elem].availability": +quantity}}, array_filters=[{"elem.userID": token}])
-    hwsets_collection.find_one_and_update(
-        {"_id": ObjectId(hwSetID), "users.userID": token},
-        {"$inc": {"availability": -quantity, "users.$.quantity": +quantity}}
-    )
-
+    hwsets_collection.update_one({"_id": ObjectId(hwSetID)}, {"$inc": {"availability": -quantity}})
     return jsonify({"message": "Updated", "status": 200})
 
 if __name__ == '__main__':

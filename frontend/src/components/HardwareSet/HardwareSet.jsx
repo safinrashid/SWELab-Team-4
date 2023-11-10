@@ -13,7 +13,9 @@ function HardwareSet({hwID, name, capacity, availability}) {
         var qty = parseInt(document.getElementById(`quantity-input-${name}`).value);
         try{
             checkInHWSet(cookies.userID, id, hwID, qty);
-            setAvailabilityState(Math.min(availabilityState + qty, 100));
+            if ((availabilityState + qty <= capacity)  && qty >= 0){
+                setAvailabilityState(availabilityState + qty);
+            }
         }catch(error){
             console.log("Error checking in hardware set: " + error);
         }
@@ -23,7 +25,9 @@ function HardwareSet({hwID, name, capacity, availability}) {
         var qty = parseInt(document.getElementById(`quantity-input-${name}`).value);
         try{
             checkOutHWSet(cookies.userID, id, hwID, qty);
-            setAvailabilityState(Math.max(0, availabilityState - qty));
+            if ((availabilityState - qty >= 0) && qty >= 0){
+                setAvailabilityState(availabilityState - qty);
+            }
         }catch(error){
             console.log("Error checking out hardware set: " + error);
         }
