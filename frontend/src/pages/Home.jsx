@@ -23,6 +23,7 @@ function Home() {
     const [absentProjects, setAbsentProjects] = useState([]);
     const [cookies, setCookie] = useCookies(['userID']);
     const [showJoinButton, setShowJoinButton] = useState(false);
+    const [shouldRefetch, setShouldRefetch] = useState(true);
 
     // Load projects from local storage when component mounts
     useEffect(() => {
@@ -38,11 +39,14 @@ function Home() {
     }, [projects]);
 
     useEffect(() => {
+        if (shouldRefetch) {
         getProjects(cookies.userID).then((response) => {
             console.log(response)
             if (response != null) setProjects(response.projects);
         })
-    }, [projects])
+        setShouldRefetch(false);
+    }
+    }, [shouldRefetch])
 
     var toggleAbsentProjects = () => {
 
@@ -74,6 +78,7 @@ function Home() {
             if (data.project != null) {
                 setProjects([...projects, data.project]);
                 setAbsentProjects(absentProjects.filter((project) => project.id !== id));
+                setShouldRefetch(true);
             }
         })
         .catch((error) => {
