@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import "./loginform.css"
+import "./loginform.scss"
 import { useNavigate } from "react-router-dom";
 import { useCookies } from "react-cookie";
 
@@ -91,10 +91,7 @@ const LoginForm = () => {
             if (response.status === 200) {
               const responseData = await response.json();
               console.log(responseData.message);
-              // You can also redirect the user to a dashboard or perform other actions upon successful login.
-
               setCookie("userID", responseData.userID, { path: '/' })
-            
               navigate("/projects");
             } else {
               console.error("Login failed. Invalid credentials.");
@@ -107,6 +104,12 @@ const LoginForm = () => {
         }
       };
 
+    const handleKeyPress = (event) => {
+      if (event.key === 'Enter') {
+          handleAuthClick();
+      }
+    };
+
     return (
       <div className="cover">
         <h1>{isSignUp ? "HaaS Sign Up" : "HaaS Login"}</h1>
@@ -115,12 +118,14 @@ const LoginForm = () => {
           placeholder="username"
           value={username}
           onChange={handleUsernameChange}
+          onKeyDown={handleKeyPress}
         />
         <input
           type={showPassword ? 'text' : 'password'} // Toggle password visibility
           placeholder="password"
           value={password}
           onChange={handlePasswordChange}
+          onKeyDown={handleKeyPress}
         />
         {isSignUp && (
           <input
@@ -128,6 +133,7 @@ const LoginForm = () => {
             placeholder="verify password"
             value={passwordVerification}
             onChange={handlePasswordVerificationChange}
+            onKeyDown={handleKeyPress}
           />
         )}
         <label className="view-password-label">
@@ -143,7 +149,8 @@ const LoginForm = () => {
           {isSignUp ? "Sign Up" : "Login"}
         </div>
         <p onClick={toggleSignUp} className="toggle-auth-option">
-          {isSignUp ? "Already have an account? Login" : "Don't have an account? Sign Up"}
+          {isSignUp ? "Already have an account? " : "Don't have an account? "}
+          <span className="underlined-text">{isSignUp ? "Login" : "Sign Up"}</span>
         </p>
       </div>
     );

@@ -3,6 +3,7 @@
     margin: 0 auto;
     flex-direction: column;
     align-items: center;
+    margin-bottom: 50px;
 }
 
 .projects-section {
@@ -24,7 +25,7 @@
 
     a.projects-new {
         width: 200px;
-        background-color: palevioletred;
+        background-color: rgb(100,156,156);
         color: #fefefe;
         border: none;
         border-radius: 10px;
@@ -36,8 +37,65 @@
 
     .projects-container {
         display: flex;
-        flex-direction: column;
+        flex-wrap: wrap;
         margin: 30px 0;
         gap: 10px;
+        justify-content: center;
+      }
+
+    .projects-absent-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    
+        select {
+            width: 100%;
+            max-width: 300px;
+            padding: 10px;
+            font-size: 16px;
+            margin-bottom: 10px;
+        }
+    
+        .projects-new {
+            width: 200px;
+            background-color: rgb(100,156,156);
+            color: #fefefe;
+            border: none;
+            border-radius: 10px;
+            padding: 10px;
+            font-size: 16px;
+            cursor: pointer;
+            text-decoration: none;
+        }
     }
+
+    .projects-new {
+        width: 200px;
+        background-color: rgb(100,156,156);
+        color: #fefefe;
+        border: none;
+        border-radius: 10px;
+        padding: 10px;
+        font-size: 16px;
+        cursor: pointer;
+        margin-bottom: 20px;
+    }
+
+    .logout-button {
+        width: 200px;
+        background-color: rgb(255, 140, 140);
+        color: #fefefe;
+        border: none;
+        border-radius: 10px;
+        padding: 10px;
+        font-size: 14px;
+        cursor: pointer;
+        margin-bottom: 20px;
+        align-items: center;
+    }
+
+    button:hover{
+        transform:scale(1.1);
+    }
+
 }
