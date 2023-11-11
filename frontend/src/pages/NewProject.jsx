@@ -7,7 +7,7 @@ import { useCookies } from 'react-cookie';
 const NewProject = () => {
 
     const navigate = useNavigate();
-    const [cookies, setCookie] = useCookies(['userID']);
+    const [cookies, setCookie, removeCookie] = useCookies(['userID']);
 
     const createProject = () => {
         const name = document.querySelector('input[name="name"]').value;
@@ -20,8 +20,21 @@ const NewProject = () => {
             name: name,
             desc: desc,
             id: id
-        }).then(() => navigate(`/projects`));
+        }).then((result) => {
+            if (result != null) {
+                navigate(`/projects`)
+            }
+        });
     }
+
+    var logout = () => {
+        removeCookie('userID');
+        navigate('/login');
+    };
+
+    var backbutton = () => {
+        navigate(`/projects`);
+    };
 
     return (
         <div className="home-container">
@@ -33,6 +46,8 @@ const NewProject = () => {
                     <input type="text" name="id" placeholder="ID" />
                     <button onClick={createProject} className='project-submit'>Create Project</button>
                 </div>
+                <button onClick={() => backbutton()} className="back-button">Cancel</button>        
+                <button onClick={() => logout()} className="logout-button">Logout</button>
             </div>
         </div>
     );

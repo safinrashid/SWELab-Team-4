@@ -3,27 +3,15 @@ import "./Home.scss";
 import Project from '../components/Project/Project';
 import { getAbsentProjects, getProjects, joinProject } from '../api';
 import { useCookies } from 'react-cookie';
+import { useNavigate  } from 'react-router';
 
 function Home() {
-
-    const testProjects = [
-        {
-            name: 'Project 1',
-            description: 'This is a project',
-            id: "1"
-        },
-        {
-            name: 'Project 2',
-            description: 'This is a second project',
-            id: "2"
-        }
-    ]
-
     const [projects, setProjects] = useState([]);
     const [absentProjects, setAbsentProjects] = useState([]);
-    const [cookies, setCookie] = useCookies(['userID']);
+    const [cookies, setCookie, removeCookie] = useCookies(['userID']);
     const [showJoinButton, setShowJoinButton] = useState(false);
     const [shouldRefetch, setShouldRefetch] = useState(true);
+    const navigate = useNavigate();
 
     // Load projects from local storage when component mounts
     useEffect(() => {
@@ -86,26 +74,40 @@ function Home() {
         });
     }
 
+    var logout = () => {
+        removeCookie('userID');
+        navigate('/login');
+    };
+
+    var newproject = () => {
+        navigate('/projects/new');
+    };
+
     return (
         <div className='home-container'>
             <div className="projects-section">
                 <h1>Choose a project</h1>
-                <a href="/projects/new" className="projects-new">New Project</a>
-                <button onClick={() => toggleAbsentProjects()} className="projects-new">View Projects</button>
+                <button onClick={() => newproject()} className="projects-new">New Project</button>
+                <button onClick={() => toggleAbsentProjects()} className="projects-new">
+                    {absentProjects.length > 0 ? (showJoinButton ? 'Hide' : 'More Projects') : 'More Projects'}
+                </button>
                 <div className="projects-absent-container">
                     {absentProjects.length > 0 && (
-                        <select onChange={(e) => joinProjectButton(e.target.value)}>
-                            <option value="">Select a project to join</option>
-                            {absentProjects.map((project) => 
-                                <option key={project.id} value={project.id}>{project.name}</option>
-                            )}
-                        </select>
+                        <>
+                            <select onChange={(e) => joinProjectButton(e.target.value)}>
+                                <option value="">Select a project to join</option>
+                                {absentProjects.map((project) => 
+                                    <option key={project.id} value={project.id}>{project.name}</option>
+                                )}
+                            </select>
+                            {showJoinButton && <button onClick={() => joinProject()} className="projects-new">Join Project</button>}
+                        </>
                     )}
-                    {showJoinButton && <button onClick={() => joinProject()} className="projects-new">Join Project</button>}
                 </div>
                 <div className="projects-container">
                     {projects.map((project) => (<Project {...project}/>))}
                 </div>
+                <button onClick={() => logout()} className="logout-button">Logout</button>
             </div>
         </div>
     );

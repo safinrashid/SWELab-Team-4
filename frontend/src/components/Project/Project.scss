@@ -1,10 +1,10 @@
 .project-container {
     display: flex;
     flex-direction: column;
-    background-color: rgb(255, 238, 244);
+    background-color: rgb(255, 248, 237);
     padding: 20px;
     border-radius: 5px;
-    border: 3px palevioletred solid;
+    border: 3px peachpuff solid;
     height: 150px;
     gap: 10px;
 
@@ -15,7 +15,7 @@
     .project-visit {
         margin-top: auto;
         width: 200px;
-        background-color: palevioletred;
+        background-color: rgb(255, 183, 119);
         color: #fefefe;
         border: none;
         border-radius: 5px;
@@ -23,5 +23,9 @@
         font-size: 16px;
         cursor: pointer;
         text-decoration: none;
+    }
+
+    button:hover{
+        transform:scale(1.1);
     }
 }

@@ -20,12 +20,29 @@
     }
 
     .project-submit {
-        background-color: palevioletred;
+        background-color: rgb(100,156,156);
         color: #fefefe;
         width: 100%;
         padding: 15px;
         text-decoration: none;
         border: none;
         cursor: pointer;
+    }
+
+    .logout-button {
+        width: 200px;
+        background-color: rgb(255, 140, 140);
+        color: #fefefe;
+        border: none;
+        border-radius: 10px;
+        padding: 10px;
+        font-size: 16px;
+        cursor: pointer;
+        margin-bottom: 20px;
+        align-items: center;
+    }
+
+    button:hover{
+        transform:scale(1.1);
     }
 }

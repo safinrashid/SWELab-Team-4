@@ -56,3 +56,11 @@ input:focus{
     transform:scale(1.15);
     background-color: rgb(190, 211, 211);
 }
+
+.toggle-auth-option {
+    cursor: pointer;
+}
+
+.underlined-text {
+    text-decoration: underline;
+}

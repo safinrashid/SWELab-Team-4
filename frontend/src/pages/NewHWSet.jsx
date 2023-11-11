@@ -8,7 +8,7 @@ const NewHWSet = () => {
 
     const {id} = useParams();
     const navigate = useNavigate();
-    const [cookies, setCookie] = useCookies(['userID']);
+    const [cookies, setCookie, removeCookie] = useCookies(['userID']);
 
     const createHWSet = () => {
         const name = document.querySelector('input[name="name"]').value;
@@ -22,6 +22,15 @@ const NewHWSet = () => {
         }).then(() => navigate(`/projects/${id}`));
     }
 
+    var logout = () => {
+        removeCookie('userID');
+        navigate('/login');
+    };
+
+    var backbutton = () => {
+        navigate(`/projects/${id}`);
+    };
+
     return (
         <div className="home-container">
             <div className="projects-section">
@@ -32,6 +41,8 @@ const NewHWSet = () => {
                     <input type="text" name="availability" placeholder="Availability" />
                     <button onClick={createHWSet} className='hw-set-submit'>Create Hardware Set</button>
                 </div>
+                <button onClick={() => backbutton()} className="back-button">Cancel</button>        
+                <button onClick={() => logout()} className="logout-button">Logout</button>
             </div>
         </div>
     );
