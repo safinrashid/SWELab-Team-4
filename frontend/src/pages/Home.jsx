@@ -8,6 +8,7 @@ import { useNavigate  } from 'react-router';
 function Home() {
     const [projects, setProjects] = useState([]);
     const [absentProjects, setAbsentProjects] = useState([]);
+    const [selectedProjectId, setSelectedProjectId] = useState('');
     const [cookies, setCookie, removeCookie] = useCookies(['userID']);
     const [showJoinButton, setShowJoinButton] = useState(false);
     const [shouldRefetch, setShouldRefetch] = useState(true);
@@ -37,46 +38,50 @@ function Home() {
     }, [shouldRefetch])
 
     var toggleAbsentProjects = () => {
-
         if (absentProjects.length > 0) {
-            setAbsentProjects([]);
+          setAbsentProjects([]);
         } else {
-            getAbsentProjects(cookies.userID).then((response) => {
-                console.log(response)
-                if (response != null) setAbsentProjects(response.projects);
-                setShowJoinButton(true);
-            })
+          getAbsentProjects(cookies.userID).then((response) => {
+            console.log(response);
+            if (response != null) setAbsentProjects(response.projects);
+            setShowJoinButton(true);
+          });
         }
-    }
-
-    var joinProjectButton = (id) => {
-        fetch('http://localhost:8000/projects/join', {
+      };
+    
+      var joinProjectButton = () => {
+        if (selectedProjectId) {
+          fetch('http://localhost:8000/projects/join', {
             method: 'POST',
             headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${cookies.userID}`, 
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${cookies.userID}`, 
             },
-            body: JSON.stringify({ id }),
-        })
-        .then(response => {
-            console.log(response);
-            return response.json();
-        })
-        .then(data => {
-            if (data.project != null) {
+            body: JSON.stringify({ id: selectedProjectId }),
+          })
+            .then(response => response.json())
+            .then(data => {
+              if (data.project != null) {
                 setProjects([...projects, data.project]);
-                setAbsentProjects(absentProjects.filter((project) => project.id !== id));
+                setAbsentProjects(absentProjects.filter((project) => project.id !== selectedProjectId));
                 setShouldRefetch(true);
-            }
-        })
-        .catch((error) => {
-            console.error('Error:', error);
-        });
-    }
+              }
+            })
+            .catch((error) => {
+              console.error('Error:', error);
+            });
+    
+            setSelectedProjectId('');
+        }
+      };
+
 
     var logout = () => {
         removeCookie('userID');
-        navigate('/login');
+        window.localStorage.clear();
+        window.location.reload(true);
+        window.location.replace('/');
+        navigate('/');
     };
 
     var newproject = () => {
@@ -85,32 +90,32 @@ function Home() {
 
     return (
         <div className='home-container'>
-            <div className="projects-section">
-                <h1>Choose a project</h1>
-                <button onClick={() => newproject()} className="projects-new">New Project</button>
-                <button onClick={() => toggleAbsentProjects()} className="projects-new">
-                    {absentProjects.length > 0 ? (showJoinButton ? 'Hide' : 'More Projects') : 'More Projects'}
-                </button>
-                <div className="projects-absent-container">
-                    {absentProjects.length > 0 && (
-                        <>
-                            <select onChange={(e) => joinProjectButton(e.target.value)}>
-                                <option value="">Select a project to join</option>
-                                {absentProjects.map((project) => 
-                                    <option key={project.id} value={project.id}>{project.name}</option>
-                                )}
-                            </select>
-                            {showJoinButton && <button onClick={() => joinProject()} className="projects-new">Join Project</button>}
-                        </>
+          <div className="projects-section">
+          <h1>Choose a project:</h1>
+            <button onClick={() => newproject()} className="projects-new">New Project</button>
+            <button onClick={() => toggleAbsentProjects()} className="projects-new">
+              {absentProjects.length > 0 ? (showJoinButton ? 'Hide' : 'More Projects') : 'More Projects'}
+            </button>
+            <div className="projects-absent-container">
+              {absentProjects.length > 0 && (
+                <>
+                  <select onChange={(e) => setSelectedProjectId(e.target.value)}>
+                    <option value="">Select a project to join</option>
+                    {absentProjects.map((project) => 
+                      <option key={project.id} value={project.id}>{project.name}</option>
                     )}
-                </div>
-                <div className="projects-container">
-                    {projects.map((project) => (<Project {...project}/>))}
-                </div>
-                <button onClick={() => logout()} className="logout-button">Logout</button>
+                  </select>
+                  {showJoinButton && <button onClick={() => joinProjectButton()} className="projects-new">Join Project</button>}
+                </>
+              )}
             </div>
+            <div className="projects-container">
+              {projects.map((project) => (<Project key={project.id} {...project}/>))}
+            </div>
+            <button onClick={() => logout()} className="logout-button">Logout</button>
+          </div>
         </div>
-    );
+      );
 }
 
 export default Home;

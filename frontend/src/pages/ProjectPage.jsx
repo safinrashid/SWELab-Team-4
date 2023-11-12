@@ -26,7 +26,7 @@ function ProjectPage() {
     var backbutton = () => {
         navigate('/projects');
     };
-
+    
     return (
         <div className="page-container">
             <h1>Hardware Set for Project {id}</h1>

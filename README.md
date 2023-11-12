@@ -1,4 +1,5 @@
-# Checkpoint 1
+# SWELab
+A full stack project for a web app that offers Hardware-as-a-Service(HaaS) rental for projects.
 
 ### Safin Rashid, Kashif Bandali, Josh Valinsky, Harsha Jandhyala, Joaquin Escobar
 
@@ -54,7 +55,7 @@ f. Map each system requirement to one or more stakeholder needs to ensure that a
 We plan to use the built-in GitHub 'Project' tool in this repository to organize work items and user stories effectively in one spot integrated with the repository and respective pull requests, initially populated with stores, technical debt, and research.
 
 
-## Sketches
+## Preliminary Sketches
 
 ![Sketch](IMG_0786.jpeg)
 
