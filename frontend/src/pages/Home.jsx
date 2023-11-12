@@ -102,7 +102,7 @@ function Home() {
                   <select onChange={(e) => setSelectedProjectId(e.target.value)}>
                     <option value="">Select a project to join</option>
                     {absentProjects.map((project) => 
-                      <option key={project.id} value={project.id}>{project.name}</option>
+                      <option key={project.id} value={project.id}>{project.name} (ID: {project.id})</option>
                     )}
                   </select>
                   {showJoinButton && <button onClick={() => joinProjectButton()} className="projects-new">Join Project</button>}
