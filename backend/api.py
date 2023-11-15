@@ -5,7 +5,7 @@ from bson import ObjectId
 from bson import json_util
 from Crypto.Cipher import AES
 from Crypto.Random import get_random_bytes
-from Crypto.Util.Padding import pad
+from Crypto.Util.Padding import pad, unpad
 from pymongo import MongoClient
 import uuid
 import json
@@ -25,19 +25,21 @@ hwsets_collection = db["HWSets"]
 # users_collection = db.UserInfo
 
 # AES encryption setup
-# def encrypt(data, key):
-#     cipher = AES.new(key, AES.MODE_CBC)
-#     padded_data = pad(data, AES.block_size, style='pkcs7')
-#     ciphertext = cipher.encrypt(padded_data)
-#     return ciphertext
+def encrypt(data, key):
+    cipher = AES.new(key, AES.MODE_CBC)
+    padded_data = pad(data, AES.block_size, style='pkcs7')
+    ciphertext = cipher.iv + cipher.encrypt(padded_data)
+    return ciphertext
 
-# def decrypt(data, key):
-#     cipher = AES.new(key, AES.MODE_CBC)
-#     plaintext = cipher.decrypt(data)
-#     return plaintext.rstrip(b"\0")
+def decrypt(data, key):
+    iv = data[:16]
+    ciphertext = data[16:]
+    cipher = AES.new(key, AES.MODE_CBC, iv=iv)
+    plaintext = unpad(cipher.decrypt(ciphertext), AES.block_size, style='pkcs7')
+    return plaintext
 
 # Generate a random AES encryption key
-# encryption_key = get_random_bytes(16)
+encryption_key = get_random_bytes(16)
 
 @app.route('/register', methods=['POST'])
 def register_user():
@@ -47,16 +49,14 @@ def register_user():
     userID = uuid.uuid4().hex
 
     # Encrypt the password before storing it
-    # encrypted_password = encrypt(password.encode('utf-8'), encryption_key)
-
+    encrypted_password = encrypt(password.encode('utf-8'), encryption_key)
     # Check if the user already exists
     if users_collection.find_one({"username": username}):
         return jsonify({"message": "User already exists"}), 400
 
     user_data = {
         "username": username,
-        #encrypted_password.hex()
-        "password": password,  # Store the hex representation of the encrypted password
+        "password": encrypted_password.hex(),  # Store the hex representation of the encrypted password
         "userID": userID # used on client side for session management with cookies
     }
 
@@ -74,11 +74,11 @@ def login_user():
     user = users_collection.find_one({"username": username})
 
     if user:
-        #stored_password = bytes.fromhex(user['password'])
+        stored_password = bytes.fromhex(user['password'])
         # decrypted_password = password
-        #decrypted_password = decrypt(stored_password, encryption_key).decode('utf-8')
-        
-        if password == user['password']:
+        decrypted_password = decrypt(stored_password, encryption_key).decode('utf-8')
+       
+        if password == decrypted_password:
             return jsonify({"message": "Login successful", "userID": user["userID"]}), 200
         else:
             return jsonify({"message": "Invalid password"}), 401
