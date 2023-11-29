@@ -20,6 +20,7 @@ db = client["UserInfo"]
 users_collection = db["Users"]
 projects_collection = db["Projects"]
 hwsets_collection = db["HWSets"]
+keys_collection = db["Keys"]
 # client = MongoClient("mongodb+srv://srashid:4j7MYn0GiqTjY3R1@project.mvmtzkd.mongodb.net/")
 # db = client.Users
 # users_collection = db.UserInfo
@@ -39,7 +40,12 @@ def decrypt(data, key):
     return plaintext
 
 # Generate a random AES encryption key
-encryption_key = get_random_bytes(16)
+key_entry = keys_collection.find_one({"_id": "encryption_key"})
+if key_entry:
+    encryption_key = bytes.fromhex(key_entry["key"])
+else:
+    encryption_key = get_random_bytes(16)
+    keys_collection.insert_one({"_id": "encryption_key", "key": encryption_key.hex()})
 
 @app.route('/register', methods=['POST'])
 def register_user():
